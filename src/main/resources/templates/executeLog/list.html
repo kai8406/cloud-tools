@@ -1,35 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-
-<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}" />
-
-<style type="text/css">
-html, body {
-	overflow-x: hidden; /* Prevent scroll on narrow devices */
-}
-
-body {
-	padding-top: 70px;
-}
-
-footer {
-	padding: 30px 0;
-}
-</style>
-
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
-
-<title>Insert title here</title>
-</head>
+<head th:include="fragment/header"></head>
 <nav class="navbar navbar-fixed-top navbar-default">
 	<div class="container">
 		<div class="navbar-header">
@@ -119,53 +90,7 @@ footer {
 			</table>
 
 			<!-- 分页 -->
-			<nav>
-
-				<!-- 
-				paginationSize:页面显示分页数量.
-				current:当前页码,spring-data-jpa的page对象是从0开始,所以要加1.
-				begin:起始页参数,当前数量减去paginationSize/2
-				end:结束页参数,起始页+页面分页数量-1
-				thymeleaf函数链接:
-				http://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html
-				 -->
-
-				<ul class="pagination"
-					th:with="paginationSize = 5,
-					current = ${ pages.number + 1},
-					beginTemp = ${#numbers.formatInteger(current - paginationSize/2,1,'POINT')},
-					begin = ${beginTemp} > 1 ? ${beginTemp} : '1',
-					endTemp = ${begin} + ${paginationSize} - 1,
-					end = ${#numbers.formatInteger(endTemp,1,'POINT')} < ${pages.totalPages} ? ${#numbers.formatInteger(endTemp,1,'POINT')} : ${pages.totalPages <1 ?  1: pages.totalPages}">
-
-					<li th:class="${pages.isFirst() ? 'disabled' : ''}"><a
-						th:href="@{.(page=0)} + '&' + ${searchParams}" href="#">First</a></li>
-
-					<li th:class="${pages.hasPrevious() ? '' : 'disabled'}"><a
-						th:href="@{.(page=${pages.number - 1 <= 0 ? 0 : pages.number - 1})} + '&' + ${searchParams}"
-						href="#">&laquo;</a></li>
-
-					<li th:each="i : ${#numbers.sequence(begin,end)}"
-						th:class="${iStat.current == current ? 'active' : ''}"><a
-						th:text="${iStat.current}"
-						th:href="@{.(page=${iStat.current - 1})} + '&' + ${searchParams}"
-						href="#">1</a></li>
-
-					<li th:class="${pages.hasNext() ? '' : 'disabled'}"><a
-						th:href="@{.(page=${pages.number >= pages.totalPages-1 ? pages.totalPages-1 : current})} + '&' + ${searchParams}"
-						href="#">&raquo;</a></li>
-
-					<li th:class="${pages.isLast() ? 'disabled' : ''}"><a
-						th:href="@{.(page=${pages.totalPages - 1})} +'&' + ${searchParams}"
-						href="#">Last</a></li>
-
-					<li class="disabled"><a href="#">共<span
-							th:text="${pages.totalElements}">0</span>条 <span
-							th:text="${pages.totalPages}">0</span>页
-					</a></li>
-
-				</ul>
-			</nav>
+			<nav th:include="fragment/pageable"></nav>
 
 		</div>
 		<!--/.col-xs-8.col-sm-10-->
@@ -175,22 +100,15 @@ footer {
 
 	<hr>
 
-	<footer>
-		<p class="text-center">&copy; 2016 Company, Inc.</p>
-	</footer>
+	<footer th:include="fragment/footer"></footer>
 
 </div>
 <!--/.container-->
 
 <!-- Placed at the end of the document so the pages load faster -->
 
-<script th:src="@{/jquery/jquery-3.1.1.min.js}"></script>
-<script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('[data-toggle="offcanvas"]').click(function() {
-			$('.row-offcanvas').toggleClass('active')
-		});
 	});
 </script>
 </body>
