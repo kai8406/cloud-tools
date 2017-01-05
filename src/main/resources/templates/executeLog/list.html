@@ -74,16 +74,18 @@ footer {
 				<div class="panel-heading">查询条件</div>
 				<div class="panel-body">
 
-					<form class="form-inline">
+					<form class="form-inline" action="#" th:action="@{.}">
 						<div class="form-group">
-							<label for="idInput">Id</label> <input type="text"
-								class="form-control" name="search_EQ_id" id="idInput">
+							<label for="search_EQ_id">Id</label> <input type="text"
+								class="form-control" th:value="${param.search_EQ_id}"
+								name="search_EQ_id" id="search_EQ_id">
 						</div>
 
 						<div class="form-group">
-							<label for="instanceInput">Instance</label> <input type="text"
-								th:vaule="${param.search_EQ_instance}" class="form-control"
-								name="search_EQ_instance" id="instanceInput">
+							<label for="search_EQ_instance">Instance</label> <input
+								type="text" class="form-control"
+								th:value="${param.search_EQ_instance}" name="search_EQ_instance"
+								id="instanceInput">
 						</div>
 
 						<button type="submit" class="btn btn-default">Submit</button>
@@ -91,7 +93,6 @@ footer {
 
 				</div>
 			</div>
-
 
 			<table class="table table-hover table-condensed table-bordered">
 				<thead>
@@ -111,13 +112,11 @@ footer {
 						<td th:text="${entity.result}">mdo</td>
 						<td
 							th:text="${#dates.format(entity.createTime, 'yyyy-MM-dd HH:mm:ss')}">mdo</td>
-
 					</tr>
 
 				</tbody>
 
 			</table>
-
 
 			<!-- 分页 -->
 			<nav>
@@ -133,41 +132,40 @@ footer {
 
 				<ul class="pagination"
 					th:with="paginationSize = 5,
-					current = ${pages.number+1},
-					beginTemp = ${#numbers.formatInteger((current-paginationSize/2),1,'POINT')},
-					begin=${beginTemp}>1?${beginTemp}:'1',
-					endTemp=${begin}+${paginationSize}-1,
-					end=${#numbers.formatInteger(endTemp,1,'POINT')}<${pages.totalPages}?${#numbers.formatInteger(endTemp,1,'POINT')}:(${pages.totalPages}<'1'?'1':${pages.totalPages})">
+					current = ${ pages.number + 1},
+					beginTemp = ${#numbers.formatInteger(current - paginationSize/2,1,'POINT')},
+					begin = ${beginTemp} > 1 ? ${beginTemp} : '1',
+					endTemp = ${begin} + ${paginationSize} - 1,
+					end = ${#numbers.formatInteger(endTemp,1,'POINT')} < ${pages.totalPages} ? ${#numbers.formatInteger(endTemp,1,'POINT')} : ${pages.totalPages <1 ?  1: pages.totalPages}">
 
+					<li th:class="${pages.isFirst() ? 'disabled' : ''}"><a
+						th:href="@{.(page=0)} + '&' + ${searchParams}" href="#">First</a></li>
 
-					<li th:class="${pages.isFirst()?'disabled':''}"><a
-						th:href="@{.(page=0)}" href="#">First</a></li>
-
-					<li th:class=${pages.hasPrevious()?'':'disabled'}><a
-						th:href="@{.(page=${pages.number-1 <= 0}?'0':${pages.number-1})}"
+					<li th:class="${pages.hasPrevious() ? '' : 'disabled'}"><a
+						th:href="@{.(page=${pages.number - 1 <= 0 ? 0 : pages.number - 1})} + '&' + ${searchParams}"
 						href="#">&laquo;</a></li>
 
 					<li th:each="i : ${#numbers.sequence(begin,end)}"
-						th:class="${iStat.current==current?'active':''}"><a
-						th:text=${iStat.current}
-						th:href="@{.(page=${iStat.current-1})}" href="#">1</a></li>
+						th:class="${iStat.current == current ? 'active' : ''}"><a
+						th:text="${iStat.current}"
+						th:href="@{.(page=${iStat.current - 1})} + '&' + ${searchParams}"
+						href="#">1</a></li>
 
-
-
-					<li th:class=${pages.hasNext()?'':'disabled'}><a
-						th:href="@{.(page=${pages.number >= pages.totalPages-1}?${pages.totalPages-1}:${current})}"
+					<li th:class="${pages.hasNext() ? '' : 'disabled'}"><a
+						th:href="@{.(page=${pages.number >= pages.totalPages-1 ? pages.totalPages-1 : current})} + '&' + ${searchParams}"
 						href="#">&raquo;</a></li>
 
-					<li th:class=${pages.isLast()?'disabled':''}><a
-						th:href="@{.(page=${pages.totalPages-1})}" href="#">Last</a></li>
+					<li th:class="${pages.isLast() ? 'disabled' : ''}"><a
+						th:href="@{.(page=${pages.totalPages - 1})} +'&' + ${searchParams}"
+						href="#">Last</a></li>
 
-					<li><a href="#">共<span th:text="${pages.totalElements}">0</span>条
-							<span th:text="${pages.totalPages}">0</span>页
+					<li class="disabled"><a href="#">共<span
+							th:text="${pages.totalElements}">0</span>条 <span
+							th:text="${pages.totalPages}">0</span>页
 					</a></li>
 
 				</ul>
 			</nav>
-
 
 		</div>
 		<!--/.col-xs-8.col-sm-10-->

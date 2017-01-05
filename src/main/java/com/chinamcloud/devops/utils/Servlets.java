@@ -74,13 +74,16 @@ public class Servlets {
 		}
 
 		StringBuilder queryStringBuilder = new StringBuilder();
-		
-		queryStringBuilder.append('&');
 
 		Iterator<Entry<String, Object>> it = params.entrySet().iterator();
 
 		while (it.hasNext()) {
 			Entry<String, Object> entry = it.next();
+
+			if (entry.getValue() == null || "".equals(entry.getValue())) {
+				continue;
+			}
+
 			queryStringBuilder.append(prefix).append(entry.getKey()).append('=').append(entry.getValue());
 			if (it.hasNext()) {
 				queryStringBuilder.append('&');

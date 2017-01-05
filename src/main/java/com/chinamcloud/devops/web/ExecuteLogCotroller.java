@@ -34,7 +34,7 @@ public class ExecuteLogCotroller {
 		redirectAttributes.addFlashAttribute("message", "age");
 		return "redirect:/executeLog";
 	}
-
+	
 	@GetMapping("/")
 	String list(Model model, @PageableDefault Pageable pageable, ServletRequest request) {
 
