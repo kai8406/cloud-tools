@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh">
 
-<head th:include="fragment/header"></head>
+<head th:replace="fragment/header"></head>
 
 <body>
 
 	<!-- navbar -->
-	<nav th:include="fragment/navbar"></nav>
+	<nav th:replace="fragment/navbar"></nav>
 	<!--/navbar-->
 
 	<!-- container-fluid -->
@@ -15,7 +15,7 @@
 		<div class="row">
 
 			<!-- sidebar -->
-			<div th:include="fragment/sidebar"></div>
+			<div th:replace="fragment/sidebar"></div>
 			<!-- /.sidebar -->
 
 			<div class="col-xs-8 col-sm-10">
@@ -29,14 +29,14 @@
 							<div class="form-group">
 								<label for="search_EQ_id">Id</label> <input type="text"
 									class="form-control" th:value="${param.search_EQ_id}"
-									name="search_EQ_id" id="search_EQ_id">
+									name="search_EQ_id" id="search_EQ_id" />
 							</div>
 
 							<div class="form-group">
 								<label for="search_EQ_instance">Instance</label> <input
 									type="text" class="form-control"
 									th:value="${param.search_EQ_instance}"
-									name="search_EQ_instance" id="instanceInput">
+									name="search_EQ_instance" id="instanceInput" />
 							</div>
 
 							<button type="submit" class="btn btn-default">Submit</button>
@@ -71,7 +71,7 @@
 				<!-- /.Table -->
 
 				<!-- pageable -->
-				<nav th:include="fragment/pageable"></nav>
+				<nav th:replace="fragment/pageable"></nav>
 				<!-- /.pageable -->
 
 			</div>
@@ -81,7 +81,7 @@
 		<!--/row-->
 
 		<!-- footer -->
-		<footer th:include="fragment/footer"></footer>
+		<footer th:replace="fragment/footer"></footer>
 		<!--/.footer-->
 
 	</div>
@@ -91,7 +91,7 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$("#executeLog").addClass("active");
+			$("#executeLogList").addClass("active");
 		});
 	</script>
 

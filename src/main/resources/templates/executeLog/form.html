@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head th:replace="fragment/header"></head>
+
+<body>
+
+	<!-- navbar -->
+	<nav th:replace="fragment/navbar"></nav>
+	<!--/navbar-->
+
+	<!-- container-fluid -->
+	<div class="container-fluid">
+
+		<div class="row">
+
+			<!-- sidebar -->
+			<div th:replace="fragment/sidebar"></div>
+			<!-- /.sidebar -->
+
+			<div class="col-xs-8 col-sm-10">
+
+				<form class="form-horizontal" action="#" th:action="@{.}"
+					method="Post">
+
+					<input type="hidden" id="result" th:value="${result}" />
+
+					<div class="form-group">
+						<label for="instance" class="col-sm-2 control-label">Instance</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="instance"
+								th:value="${instance}" name="instance" placeholder="Instance" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="script" class="col-sm-2 control-label">Script</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" rows="3" id="script" name="script"
+								placeholder="script" th:text="${script}"></textarea>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="submit" class="btn btn-default">Submit</button>
+						</div>
+					</div>
+
+				</form>
+
+				<pre class="hidden" id="resultPre"></pre>
+
+			</div>
+			<!--/.col-xs-8.col-sm-10-->
+
+		</div>
+		<!--/row-->
+
+		<!-- footer -->
+		<footer th:replace="fragment/footer"></footer>
+		<!--/.footer-->
+
+	</div>
+	<!--/.container-fluid-->
+
+	<!-- Placed at the end of the document so the pages load faster -->
+
+	<script type="text/javascript">
+		$(document).ready(
+				function() {
+
+					$("#executeLogForm").addClass("active");
+
+					var $result = $("#result").val();
+
+					if (!$.isEmptyObject($result)) {
+						$("#resultPre").addClass("bg-success").removeClass(
+								"hidden").append($result);
+					}
+
+				});
+	</script>
+
+</body>
+</html>

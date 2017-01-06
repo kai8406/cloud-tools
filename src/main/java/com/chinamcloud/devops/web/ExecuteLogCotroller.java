@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chinamcloud.devops.service.db.ExecuteLogService;
@@ -29,12 +30,22 @@ public class ExecuteLogCotroller {
 	@Autowired
 	private ExecuteLogService service;
 
-	@PostMapping("/")
-	String post(RedirectAttributes redirectAttributes) {
-		redirectAttributes.addFlashAttribute("message", "age");
-		return "redirect:/executeLog";
+	@PostMapping("/form/")
+	String postForm(RedirectAttributes redirectAttributes, @RequestParam("instance") String instance,
+			@RequestParam("script") String script) {
+
+		redirectAttributes.addFlashAttribute("result", instance + script);
+		redirectAttributes.addFlashAttribute("instance", instance);
+		redirectAttributes.addFlashAttribute("script", script);
+
+		return "redirect:/executeLog/form/";
 	}
-	
+
+	@GetMapping("/form/")
+	String getForm() {
+		return "executeLog/form";
+	}
+
 	@GetMapping("/")
 	String list(Model model, @PageableDefault Pageable pageable, ServletRequest request) {
 
