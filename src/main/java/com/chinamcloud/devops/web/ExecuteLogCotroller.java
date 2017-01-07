@@ -1,5 +1,6 @@
 package com.chinamcloud.devops.web;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chinamcloud.devops.service.db.ExecuteLogService;
+import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
 
 @Controller
@@ -26,17 +28,28 @@ public class ExecuteLogCotroller {
 	 * 接收request的前缀.{@value}
 	 */
 	public static final String Request_Prefix = "search_";
+	public static final String URL = "http://10.10.16.217:8888";
 
 	@Autowired
 	private ExecuteLogService service;
 
 	@PostMapping("/form/")
-	String postForm(RedirectAttributes redirectAttributes, @RequestParam("instance") String instance,
-			@RequestParam("script") String script) {
+	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
+			@RequestParam("instance") String instance, @RequestParam("script") String script) {
 
-		redirectAttributes.addFlashAttribute("result", instance + script);
+		redirectAttributes.addFlashAttribute("accessKey", accessKey);
 		redirectAttributes.addFlashAttribute("instance", instance);
 		redirectAttributes.addFlashAttribute("script", script);
+
+		Map<String, String> params = new HashMap<>();
+		params.put("accessKey", accessKey);
+		params.put("vpc_code", "Vpc-QeuDu6rt");
+		params.put("tgt", instance);
+		params.put("command", script);
+		params.put("is_async", "False");
+		String result = HttpClientUtils.post(URL + "/opts_util/run_command", params);
+
+		redirectAttributes.addFlashAttribute("result", result);
 
 		return "redirect:/executeLog/form/";
 	}
