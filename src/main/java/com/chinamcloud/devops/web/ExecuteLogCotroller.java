@@ -1,5 +1,6 @@
 package com.chinamcloud.devops.web;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.chinamcloud.devops.service.db.ExecuteLogService;
 import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/executeLog")
@@ -35,21 +38,40 @@ public class ExecuteLogCotroller {
 
 	@PostMapping("/form/")
 	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
-			@RequestParam("instance") String instance, @RequestParam("script") String script) {
+			@RequestParam("vpcCode") String vpcCode, @RequestParam("instanceCode") String instanceCode,
+			@RequestParam("command") String command) {
 
 		redirectAttributes.addFlashAttribute("accessKey", accessKey);
-		redirectAttributes.addFlashAttribute("instance", instance);
-		redirectAttributes.addFlashAttribute("script", script);
+		redirectAttributes.addFlashAttribute("instanceCode", instanceCode);
+		redirectAttributes.addFlashAttribute("vpcCode", vpcCode);
+		redirectAttributes.addFlashAttribute("command", command);
 
 		Map<String, String> params = new HashMap<>();
 		params.put("accessKey", accessKey);
-		params.put("vpc_code", "Vpc-QeuDu6rt");
-		params.put("tgt", instance);
-		params.put("command", script);
+		// params.put("vpc_code", "Vpc-QeuDu6rt");
+		params.put("vpc_code", vpcCode);
+		params.put("tgt", instanceCode);
+		params.put("command", command);
 		params.put("is_async", "False");
-		String result = HttpClientUtils.post(URL + "/opts_util/run_command", params);
 
-		redirectAttributes.addFlashAttribute("result", result);
+		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
+
+		System.out.println(jsonString);
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		JsonNode node;
+
+		try {
+			node = mapper.readTree(jsonString);
+
+			String result = node.get("return").toString();
+
+			redirectAttributes.addFlashAttribute("result", result);
+
+		} catch (IOException e) {
+
+		}
 
 		return "redirect:/executeLog/form/";
 	}

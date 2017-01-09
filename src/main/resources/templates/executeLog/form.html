@@ -26,26 +26,36 @@
 					<input type="hidden" id="result" th:value="${result}" />
 
 					<div class="form-group">
-						<label for="instance" class="col-sm-2 control-label">AccessKey</label>
+						<label for="accessKey" class="col-sm-2 control-label">AccessKey</label>
 						<div class="col-sm-10">
 							<input type="text" class="form-control" id="accessKey"
-								th:value="${accessKey}" name="accessKey" placeholder="AccessKey" />
+								th:value="${accessKey}" name="accessKey"
+								placeholder="Access Key" />
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="instance" class="col-sm-2 control-label">Instance</label>
+						<label for="vpcCode" class="col-sm-2 control-label">VPC</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="instance"
-								th:value="${instance}" name="instance" placeholder="Instance" />
+							<input type="text" class="form-control" id="accessKey"
+								th:value="${vpcCode}" name="vpcCode" placeholder="VPC Code" />
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="script" class="col-sm-2 control-label">Script</label>
+						<label for="instanceCode" class="col-sm-2 control-label">Instance</label>
 						<div class="col-sm-10">
-							<textarea class="form-control" rows="3" id="script" name="script"
-								placeholder="Script" th:text="${script}"></textarea>
+							<input type="text" class="form-control" id="instanceCode"
+								th:value="${instanceCode}" name="instanceCode"
+								placeholder="Instance Code" />
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="command" class="col-sm-2 control-label">command</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" rows="3" id="command"
+								name="command" placeholder="Command" th:text="${command}"></textarea>
 						</div>
 					</div>
 
