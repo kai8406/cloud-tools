@@ -1,6 +1,5 @@
 package com.chinamcloud.devops.web;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,8 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.chinamcloud.devops.service.db.ExecuteLogService;
 import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.chinamcloud.devops.utils.mapper.JsonMapper;
 
 @Controller
 @RequestMapping("/executeLog")
@@ -32,6 +30,7 @@ public class ExecuteLogCotroller {
 	 */
 	public static final String Request_Prefix = "search_";
 	public static final String URL = "http://10.10.16.217:8888";
+	public static JsonMapper binder = JsonMapper.nonEmptyMapper();
 
 	@Autowired
 	private ExecuteLogService service;
@@ -56,22 +55,9 @@ public class ExecuteLogCotroller {
 
 		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
 
-		System.out.println(jsonString);
+		Result result = binder.fromJson(jsonString, Result.class);
 
-		ObjectMapper mapper = new ObjectMapper();
-
-		JsonNode node;
-
-		try {
-			node = mapper.readTree(jsonString);
-
-			String result = node.get("return").toString();
-
-			redirectAttributes.addFlashAttribute("result", result);
-
-		} catch (IOException e) {
-
-		}
+		redirectAttributes.addFlashAttribute("result", result.getResp_info());
 
 		return "redirect:/executeLog/form/";
 	}
