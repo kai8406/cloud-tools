@@ -1,5 +1,6 @@
 package com.chinamcloud.devops.web;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +13,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.chinamcloud.devops.entity.ExecuteLog;
 import com.chinamcloud.devops.service.db.ExecuteLogService;
 import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
@@ -53,6 +56,17 @@ public class ExecuteLogCotroller {
 		return "executeLog/list";
 	}
 
+	@GetMapping("/id/{id}")
+	String list(Model model, @PathVariable("id") Integer id) {
+
+		ExecuteLog executeLog = service.find(id);
+		model.addAttribute("detail", executeLog);
+
+		model.addAttribute("resultMap", resultMap(executeLog.getResult()));
+
+		return "executeLog/detail";
+	}
+
 	@PostMapping("/form/")
 	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
 			@RequestParam("vpcCode") String vpcCode, @RequestParam("instanceCode") String instanceCode,
@@ -74,7 +88,16 @@ public class ExecuteLogCotroller {
 
 		Result result = binder.fromJson(jsonString, Result.class);
 
-		redirectAttributes.addFlashAttribute("resultMap", resultMap(result));
+		ExecuteLog executeLog = new ExecuteLog();
+		executeLog.setResult(result.getResp_info());
+		executeLog.setInstanceCode(instanceCode);
+		executeLog.setCreateTime(new Date());
+		executeLog.setCommand(command);
+		executeLog.setVpcCode(vpcCode);
+
+		service.saveAndFlush(executeLog);
+
+		redirectAttributes.addFlashAttribute("resultMap", resultMap(result.getResp_info()));
 
 		return "redirect:/executeLog/form/";
 	}
@@ -86,13 +109,15 @@ public class ExecuteLogCotroller {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private HashMap<String, Object> resultMap(Result result) {
+	private HashMap<String, Object> resultMap(String jsonString) {
 
 		// 替换换行符.
-		String s = StringUtils.replace(result.getResp_info(), "\\n", "<br>");
+		String s = StringUtils.replace(jsonString, "\\n", "<br>");
 
 		// 截取字段.eg: {"return": [{"Ecs-L0dNQYd0": "root"}]} -> {"Ecs-OKlBXqyX": "root"}
 		String json = StringUtils.substring(s, 12, s.length() - 2);
+
+		System.err.println(json);
 
 		return binder.fromJson(json, HashMap.class);
 	}

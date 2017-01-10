@@ -51,6 +51,7 @@
 					<thead>
 						<tr>
 							<th>Id</th>
+							<th>VPC</th>
 							<th>Instance</th>
 							<th>Command</th>
 							<th>Results</th>
@@ -60,9 +61,11 @@
 					<tbody>
 						<tr th:each="entity : ${pages.content}">
 							<td th:text="${entity.id}">1</td>
-							<td th:text="${entity.instance}">Mark</td>
+							<td th:text="${entity.vpcCode}">Mark</td>
+							<td th:text="${entity.instanceCode}">Mark</td>
 							<td th:text="${entity.command}">Otto</td>
-							<td th:text="${entity.result}">mdo</td>
+							<td><a href="#" th:href="@{./id/__${entity.id}__}"
+								th:text="${#strings.abbreviate(entity.result,72)}">mdo</a></td>
 							<td
 								th:text="${#dates.format(entity.createTime, 'yyyy-MM-dd HH:mm:ss')}">mdo</td>
 						</tr>

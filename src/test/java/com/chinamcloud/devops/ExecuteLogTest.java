@@ -66,17 +66,16 @@ public class ExecuteLogTest {
 
 		page.getContent().stream().forEach(s -> System.err.println("Content:" + s));
 
-		
-		System.err.println("hasContent:" + page.hasContent()); //是否包含内容
-		System.err.println("Number:" + page.getNumber());  //当前页为第x页
-		System.err.println("NumberOfElements:" + page.getNumberOfElements()); //当前页显示的数据数量
-		System.err.println("Size:" + page.getSize());//每页大小为15
-		System.err.println("TotalElements:" + page.getTotalElements()); //总数据量
-		System.err.println("TotalPages:" + page.getTotalPages()); //总页数
-		System.err.println("hasPrevious:" + page.hasPrevious());//是否有上页
-		System.err.println("hasNext:" + page.hasNext());//是否有下页
-		System.err.println("isFirst:" + page.isFirst());//是否第一页
-		System.err.println("isLast:" + page.isLast());//是否最后一页
+		System.err.println("hasContent:" + page.hasContent()); // 是否包含内容
+		System.err.println("Number:" + page.getNumber()); // 当前页为第x页
+		System.err.println("NumberOfElements:" + page.getNumberOfElements()); // 当前页显示的数据数量
+		System.err.println("Size:" + page.getSize());// 每页大小为15
+		System.err.println("TotalElements:" + page.getTotalElements()); // 总数据量
+		System.err.println("TotalPages:" + page.getTotalPages()); // 总页数
+		System.err.println("hasPrevious:" + page.hasPrevious());// 是否有上页
+		System.err.println("hasNext:" + page.hasNext());// 是否有下页
+		System.err.println("isFirst:" + page.isFirst());// 是否第一页
+		System.err.println("isLast:" + page.isLast());// 是否最后一页
 
 	}
 
@@ -84,15 +83,15 @@ public class ExecuteLogTest {
 	public void save() {
 
 		for (int i = 1; i < 100; i++) {
-			
-		
-		ExecuteLog entity = new ExecuteLog();
-		entity.setCreateTime(new Date());
-		entity.setInstance("instance");
-		entity.setCommand("command");
-		entity.setResult("result");
 
-		System.out.println(service.saveAndFlush(entity));
+			ExecuteLog entity = new ExecuteLog();
+			entity.setCreateTime(new Date());
+			entity.setInstanceCode("instance");
+			entity.setCommand("command");
+			entity.setResult("result");
+			entity.setVpcCode("vpc");
+
+			System.out.println(service.saveAndFlush(entity));
 		}
 	}
 

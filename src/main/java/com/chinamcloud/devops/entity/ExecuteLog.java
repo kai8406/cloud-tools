@@ -24,11 +24,14 @@ public class ExecuteLog {
 	@GeneratedValue
 	private Integer id;
 
-	@Column(name = "instance")
-	private String instance;
+	@Column(name = "instance_code")
+	private String instanceCode;
 
 	@Column(name = "result")
 	private String result;
+
+	@Column(name = "vpc_code")
+	private String vpcCode;
 
 	public ExecuteLog() {
 	}
@@ -45,12 +48,16 @@ public class ExecuteLog {
 		return id;
 	}
 
-	public String getInstance() {
-		return instance;
+	public String getInstanceCode() {
+		return instanceCode;
 	}
 
 	public String getResult() {
 		return result;
+	}
+
+	public String getVpcCode() {
+		return vpcCode;
 	}
 
 	public void setCommand(String command) {
@@ -65,12 +72,16 @@ public class ExecuteLog {
 		this.id = id;
 	}
 
-	public void setInstance(String instance) {
-		this.instance = instance;
+	public void setInstanceCode(String instanceCode) {
+		this.instanceCode = instanceCode;
 	}
 
 	public void setResult(String result) {
 		this.result = result;
+	}
+
+	public void setVpcCode(String vpcCode) {
+		this.vpcCode = vpcCode;
 	}
 
 	/**
