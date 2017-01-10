@@ -34,7 +34,11 @@ public class ExecuteLogCotroller {
 	 * 接收request的前缀.{@value}
 	 */
 	public static final String Request_Prefix = "search_";
-	public static final String URL = "http://10.10.16.217:8888";
+
+	/**
+	 * Salt API URL.{@value}
+	 */
+	public static final String Salt_API_URL = "http://10.10.16.217:8888";
 
 	@Autowired
 	private ExecuteLogService service;
@@ -42,6 +46,17 @@ public class ExecuteLogCotroller {
 	@GetMapping("/form/")
 	String getForm() {
 		return "executeLog/form";
+	}
+
+	@GetMapping("/id/{id}")
+	String list(Model model, @PathVariable("id") Integer id) {
+
+		ExecuteLog executeLog = service.find(id);
+		model.addAttribute("detail", executeLog);
+
+		model.addAttribute("resultMap", resultMap(executeLog.getResult()));
+
+		return "executeLog/detail";
 	}
 
 	@GetMapping("/")
@@ -54,17 +69,6 @@ public class ExecuteLogCotroller {
 		model.addAttribute("searchParams", Servlets.encodeParameterStringWithPrefix(searchParams, Request_Prefix));
 
 		return "executeLog/list";
-	}
-
-	@GetMapping("/id/{id}")
-	String list(Model model, @PathVariable("id") Integer id) {
-
-		ExecuteLog executeLog = service.find(id);
-		model.addAttribute("detail", executeLog);
-
-		model.addAttribute("resultMap", resultMap(executeLog.getResult()));
-
-		return "executeLog/detail";
 	}
 
 	@PostMapping("/form/")
@@ -84,7 +88,7 @@ public class ExecuteLogCotroller {
 		params.put("command", command);
 		params.put("is_async", "False");
 
-		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
+		String jsonString = HttpClientUtils.post(Salt_API_URL + "/opts_util/run_command", params);
 
 		Result result = binder.fromJson(jsonString, Result.class);
 
@@ -116,8 +120,6 @@ public class ExecuteLogCotroller {
 
 		// 截取字段.eg: {"return": [{"Ecs-L0dNQYd0": "root"}]} -> {"Ecs-OKlBXqyX": "root"}
 		String json = StringUtils.substring(s, 12, s.length() - 2);
-
-		System.err.println(json);
 
 		return binder.fromJson(json, HashMap.class);
 	}
