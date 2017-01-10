@@ -1,16 +1,13 @@
 package com.chinamcloud.devops;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import com.chinamcloud.devops.utils.mapper.JsonMapper;
 import com.chinamcloud.devops.web.Result;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class T {
 
@@ -29,23 +26,15 @@ public class T {
 
 		Result r = binder.fromJson(Str, Result.class);
 
-//		System.out.println(Str);
-//		System.out.println(r.getResp_info());
-		// System.out.println(r.getResultMessage());
-		// System.out.println(r.getTaskCode());
-		// System.out.println(r.getTaskStatus());
+		System.out.println(r.getResp_info());
 
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode node = mapper.readTree(Str);
-//		System.out.println(node.get("resp_info"));
+		String json = StringUtils.substring(r.getResp_info(), 12, r.getResp_info().length() - 2);
+		
+		System.out.println(json);
 
-		Iterator<Entry<String, JsonNode>> jsonNodes = node.fields();
+		ResMap map = binder.fromJson(json, ResMap.class);
 
-		while (jsonNodes.hasNext()) {
-			Entry<String, JsonNode> node2 = jsonNodes.next();
-			System.out.println(node2.getKey());
-			System.out.println(node2.getValue().toString());
-		}
+		System.out.println(map);
 
 	}
 }

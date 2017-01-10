@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -56,8 +57,10 @@ public class ExecuteLogCotroller {
 		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
 
 		Result result = binder.fromJson(jsonString, Result.class);
-
-		redirectAttributes.addFlashAttribute("result", result.getResp_info());
+		System.out.println(result.getResp_info());
+		String s = StringUtils.replace(result.getResp_info(), "\\n", "<br>");
+		System.out.println(s);
+		redirectAttributes.addFlashAttribute("result", s);
 
 		return "redirect:/executeLog/form/";
 	}
