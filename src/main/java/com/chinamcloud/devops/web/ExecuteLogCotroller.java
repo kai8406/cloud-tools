@@ -26,44 +26,15 @@ import com.chinamcloud.devops.utils.mapper.JsonMapper;
 @RequestMapping("/executeLog")
 public class ExecuteLogCotroller {
 
+	public static JsonMapper binder = JsonMapper.nonEmptyMapper();
 	/**
 	 * 接收request的前缀.{@value}
 	 */
 	public static final String Request_Prefix = "search_";
 	public static final String URL = "http://10.10.16.217:8888";
-	public static JsonMapper binder = JsonMapper.nonEmptyMapper();
 
 	@Autowired
 	private ExecuteLogService service;
-
-	@PostMapping("/form/")
-	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
-			@RequestParam("vpcCode") String vpcCode, @RequestParam("instanceCode") String instanceCode,
-			@RequestParam("command") String command) {
-
-		redirectAttributes.addFlashAttribute("accessKey", accessKey);
-		redirectAttributes.addFlashAttribute("instanceCode", instanceCode);
-		redirectAttributes.addFlashAttribute("vpcCode", vpcCode);
-		redirectAttributes.addFlashAttribute("command", command);
-
-		Map<String, String> params = new HashMap<>();
-		params.put("accessKey", accessKey);
-		// params.put("vpc_code", "Vpc-QeuDu6rt");
-		params.put("vpc_code", vpcCode);
-		params.put("tgt", instanceCode);
-		params.put("command", command);
-		params.put("is_async", "False");
-
-		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
-
-		Result result = binder.fromJson(jsonString, Result.class);
-		System.out.println(result.getResp_info());
-		String s = StringUtils.replace(result.getResp_info(), "\\n", "<br>");
-		System.out.println(s);
-		redirectAttributes.addFlashAttribute("result", s);
-
-		return "redirect:/executeLog/form/";
-	}
 
 	@GetMapping("/form/")
 	String getForm() {
@@ -80,6 +51,50 @@ public class ExecuteLogCotroller {
 		model.addAttribute("searchParams", Servlets.encodeParameterStringWithPrefix(searchParams, Request_Prefix));
 
 		return "executeLog/list";
+	}
+
+	@PostMapping("/form/")
+	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
+			@RequestParam("vpcCode") String vpcCode, @RequestParam("instanceCode") String instanceCode,
+			@RequestParam("command") String command) {
+
+		redirectAttributes.addFlashAttribute("accessKey", accessKey);
+		redirectAttributes.addFlashAttribute("instanceCode", instanceCode);
+		redirectAttributes.addFlashAttribute("vpcCode", vpcCode);
+		redirectAttributes.addFlashAttribute("command", command);
+
+		Map<String, String> params = new HashMap<>();
+		params.put("accessKey", accessKey);
+		params.put("vpc_code", vpcCode);
+		params.put("tgt", instanceCode);
+		params.put("command", command);
+		params.put("is_async", "False");
+
+		String jsonString = HttpClientUtils.post(URL + "/opts_util/run_command", params);
+
+		Result result = binder.fromJson(jsonString, Result.class);
+
+		redirectAttributes.addFlashAttribute("resultMap", resultMap(result));
+
+		return "redirect:/executeLog/form/";
+	}
+
+	/**
+	 * 对salt-api返回的json参数进行解析.
+	 * 
+	 * @param result
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private HashMap<String, Object> resultMap(Result result) {
+
+		// 替换换行符.
+		String s = StringUtils.replace(result.getResp_info(), "\\n", "<br>");
+
+		// 截取字段.eg: {"return": [{"Ecs-L0dNQYd0": "root"}]} -> {"Ecs-OKlBXqyX": "root"}
+		String json = StringUtils.substring(s, 12, s.length() - 2);
+
+		return binder.fromJson(json, HashMap.class);
 	}
 
 }

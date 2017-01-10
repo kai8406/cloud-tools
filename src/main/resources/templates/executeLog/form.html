@@ -23,7 +23,9 @@
 				<form class="form-horizontal" action="#" th:action="@{.}"
 					method="Post">
 
-					<input type="hidden" id="result" th:value="${result}" />
+					<!-- 执行结果隐藏域 -->
+					<input type="hidden" id="result" th:each="map : ${resultMap}"
+						th:value="${map.key}+':<br>'+${map.value} " />
 
 					<div class="form-group">
 						<label for="accessKey" class="col-sm-2 control-label">AccessKey</label>
@@ -67,7 +69,7 @@
 
 				</form>
 
-				<blockquote class="hidden" id="resultPre"></blockquote>
+				<blockquote class="hidden col-sm-offset-2 col-sm-10" id="resultPre"></blockquote>
 
 			</div>
 			<!--/.col-xs-8.col-sm-10-->
