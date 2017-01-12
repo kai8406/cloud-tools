@@ -9,8 +9,11 @@ import java.util.Map;
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,11 +39,11 @@ import com.chinamcloud.devops.utils.mapper.JsonMapper;
 public class ExecuteLogCotroller {
 
 	public static JsonMapper binder = JsonMapper.nonEmptyMapper();
+
 	/**
 	 * 接收request的前缀.{@value}
 	 */
 	public static final String Request_Prefix = "search_";
-
 	/**
 	 * Salt API URL.{@value}
 	 */
@@ -52,14 +55,18 @@ public class ExecuteLogCotroller {
 	public static final Integer star_Index = 0;
 
 	@Autowired
-	private ExecuteLogService service;
+	private CMDBService cmdbService;
+
+	Logger logger = LoggerFactory.getLogger(ExecuteLogCotroller.class);
 
 	@Autowired
-	private CMDBService cmdbService;
+	private ExecuteLogService service;
 
 	@GetMapping("/form/")
 	String getForm(Model model) {
+
 		model.addAttribute("tenants", cmdbService.getTenants(new HashMap<>()));
+
 		return "executeLog/form";
 	}
 
@@ -75,12 +82,12 @@ public class ExecuteLogCotroller {
 	}
 
 	@GetMapping("/")
-	String list(Model model, @PageableDefault Pageable pageable, ServletRequest request) {
+	String list(Model model, @PageableDefault(direction = Direction.DESC, sort = { "id" }) Pageable pageable,
+			ServletRequest request) {
 
 		Map<String, Object> searchParams = Servlets.getParametersStartingWith(request, Request_Prefix);
 
 		model.addAttribute("pages", service.findAll(searchParams, pageable));
-
 		model.addAttribute("searchParams", Servlets.encodeParameterStringWithPrefix(searchParams, Request_Prefix));
 
 		return "executeLog/list";
@@ -91,22 +98,16 @@ public class ExecuteLogCotroller {
 			@RequestParam("vpc") Integer vpcId, @RequestParam("ecs") List<Integer> ecsIds,
 			@RequestParam("command") String command) {
 
-		redirectAttributes.addFlashAttribute("tenants", tenantsId);
-		redirectAttributes.addFlashAttribute("vpc", vpcId);
-		redirectAttributes.addFlashAttribute("ecs", ecsIds);
-		redirectAttributes.addFlashAttribute("command", command);
-
 		Tenants tenants = cmdbService.findTenants(tenantsId);
 		Vpc vpc = cmdbService.findVpc(vpcId);
 
 		List<String> ecsCodes = new ArrayList<>();
 
 		ecsIds.stream().filter(i -> i != star_Index).forEach(i -> ecsCodes.add(cmdbService.findEcs(i).getCode()));
-
 		Map<String, String> params = new HashMap<>();
+		params.put("tgt", ecsIds.contains(star_Index) ? "*" : Collections3.convertToString(ecsCodes, ","));
 		params.put("accessKey", tenants.getAccessKey());
 		params.put("vpc_code", vpc.getCode());
-		params.put("tgt", ecsIds.contains(star_Index) ? "*" : Collections3.convertToString(ecsCodes, ","));
 		params.put("command", command);
 		params.put("is_async", "False");
 
@@ -115,14 +116,15 @@ public class ExecuteLogCotroller {
 		Result result = binder.fromJson(jsonString, Result.class);
 
 		ExecuteLog executeLog = new ExecuteLog();
-		executeLog.setResult(result.getResp_info());
 		executeLog.setInstanceCode(ecsIds.contains(star_Index) ? "*" : "");
+		executeLog.setResult(result.getResp_info());
 		executeLog.setCreateTime(new Date());
 		executeLog.setCommand(command);
 		executeLog.setVpcCode(vpc.getCode());
 
 		service.saveAndFlush(executeLog);
 
+		redirectAttributes.addFlashAttribute("command", command);
 		redirectAttributes.addFlashAttribute("resultMap", resultMap(result.getResp_info()));
 
 		return "redirect:/executeLog/form/";
