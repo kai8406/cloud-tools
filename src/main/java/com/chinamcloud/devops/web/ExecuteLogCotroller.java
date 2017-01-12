@@ -1,7 +1,9 @@
 package com.chinamcloud.devops.web;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletRequest;
@@ -19,12 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.chinamcloud.devops.entity.Ecs;
 import com.chinamcloud.devops.entity.ExecuteLog;
 import com.chinamcloud.devops.entity.Tenants;
 import com.chinamcloud.devops.entity.Vpc;
 import com.chinamcloud.devops.mq.CMDBService;
 import com.chinamcloud.devops.service.db.ExecuteLogService;
+import com.chinamcloud.devops.utils.Collections3;
 import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
 import com.chinamcloud.devops.utils.mapper.JsonMapper;
@@ -43,6 +45,11 @@ public class ExecuteLogCotroller {
 	 * Salt API URL.{@value}
 	 */
 	public static final String Salt_API_URL = "http://10.10.16.217:8888";
+
+	/**
+	 * 页面传递进来的"*"号参数对应的Id.
+	 */
+	public static final Integer star_Index = 0;
 
 	@Autowired
 	private ExecuteLogService service;
@@ -81,22 +88,25 @@ public class ExecuteLogCotroller {
 
 	@PostMapping("/form/")
 	String postForm(RedirectAttributes redirectAttributes, @RequestParam("tenants") Integer tenantsId,
-			@RequestParam("vpc") Integer vpcId, @RequestParam("ecs") String ecsId,
+			@RequestParam("vpc") Integer vpcId, @RequestParam("ecs") List<Integer> ecsIds,
 			@RequestParam("command") String command) {
 
 		redirectAttributes.addFlashAttribute("tenants", tenantsId);
 		redirectAttributes.addFlashAttribute("vpc", vpcId);
-		redirectAttributes.addFlashAttribute("ecs", ecsId);
+		redirectAttributes.addFlashAttribute("ecs", ecsIds);
 		redirectAttributes.addFlashAttribute("command", command);
 
 		Tenants tenants = cmdbService.findTenants(tenantsId);
 		Vpc vpc = cmdbService.findVpc(vpcId);
-		Ecs ecs = cmdbService.findEcs(Integer.valueOf(ecsId));
+
+		List<String> ecsCodes = new ArrayList<>();
+
+		ecsIds.stream().filter(i -> i != star_Index).forEach(i -> ecsCodes.add(cmdbService.findEcs(i).getCode()));
 
 		Map<String, String> params = new HashMap<>();
 		params.put("accessKey", tenants.getAccessKey());
 		params.put("vpc_code", vpc.getCode());
-		params.put("tgt", ecs.getCode());
+		params.put("tgt", ecsIds.contains(star_Index) ? "*" : Collections3.convertToString(ecsCodes, ","));
 		params.put("command", command);
 		params.put("is_async", "False");
 
@@ -106,7 +116,7 @@ public class ExecuteLogCotroller {
 
 		ExecuteLog executeLog = new ExecuteLog();
 		executeLog.setResult(result.getResp_info());
-		executeLog.setInstanceCode(ecs.getCode());
+		executeLog.setInstanceCode(ecsIds.contains(star_Index) ? "*" : "");
 		executeLog.setCreateTime(new Date());
 		executeLog.setCommand(command);
 		executeLog.setVpcCode(vpc.getCode());
