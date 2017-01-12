@@ -24,30 +24,29 @@
 					method="Post">
 
 					<div class="form-group">
-						<label for="accessKey" class="col-sm-2 control-label">AccessKey</label>
+						<label for="tenants" class="col-sm-2 control-label">Tenants</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="accessKey"
-								th:value="${accessKey}" name="accessKey"
-								placeholder="Access Key" />
+							<select name="tenants" id="tenants">
+								<option value="" th:each="tenant:${tenants}"
+									th:value="${tenant.id}" th:text="${tenant.code}">123</option>
+							</select>
 						</div>
 					</div>
 
 					<div class="form-group">
-						<label for="vpcCode" class="col-sm-2 control-label">VPC</label>
+						<label for="vpc" class="col-sm-2 control-label">VPC</label>
 						<div class="col-sm-10">
-							<input type="text" class="form-control" id="accessKey"
-								th:value="${vpcCode}" name="vpcCode" placeholder="VPC Code" />
+							<select name="vpc" id="vpc"></select>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<label for="ecs" class="col-sm-2 control-label">Ecs</label>
+						<div class="col-sm-10">
+							<select name="ecs" id="ecs"></select>
 						</div>
 					</div>
 
-					<div class="form-group">
-						<label for="instanceCode" class="col-sm-2 control-label">Instance</label>
-						<div class="col-sm-10">
-							<input type="text" class="form-control" id="instanceCode"
-								th:value="${instanceCode}" name="instanceCode"
-								placeholder="Instance Code" />
-						</div>
-					</div>
 
 					<div class="form-group">
 						<label for="command" class="col-sm-2 control-label">command</label>
@@ -64,8 +63,6 @@
 					</div>
 
 				</form>
-
-
 
 				<blockquote class="bg-success col-sm-offset-2 col-sm-10"
 					th:each="map : ${resultMap}"
@@ -88,11 +85,45 @@
 	<!-- Placed at the end of the document so the pages load faster -->
 
 	<script type="text/javascript">
-		$(document).ready(function() {
+		$(document)
+				.ready(
+						function() {
 
-			$("#executeLogForm").addClass("active");
+							$("#executeLogForm").addClass("active");
+							
+							$("#tenants").change(function() {
+								$.ajax({
+									type : "GET",
+									url : "[[@{/ajax/vpc/tenants/}]]"+ $("#tenants").val(),
+									dataType : "json",
+									success : function(data) {
+										 var $html = "<option value=''></option>";
+										for (var i = 0; i < data.length; i++) {
+											$html += "<option value='" + data[i].id + "'>" + data[i].code + "</option>";
+										}
+										$("#vpc").empty().append($html);
+									}
+								});
+							});
+							
+							$("#vpc").change(function() {
+								$.ajax({
+									type : "GET",
+									url : "[[@{/ajax/ecs/vpc/}]]"+ $("#vpc").val(),
+									dataType : "json",
+									success : function(data) {
+										 var $html = "<option value='*'>*</option>";
+										for (var i = 0; i < data.length; i++) {
+											$html += "<option value='" + data[i].id + "'>" + data[i].code + "</option>";
+										}
+										$("#ecs").empty().append($html);
+									}
+								});
+							});
 
-		});
+							
+
+						});
 	</script>
 
 </body>

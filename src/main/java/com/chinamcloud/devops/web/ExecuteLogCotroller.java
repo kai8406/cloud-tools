@@ -19,7 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.chinamcloud.devops.entity.Ecs;
 import com.chinamcloud.devops.entity.ExecuteLog;
+import com.chinamcloud.devops.entity.Tenants;
+import com.chinamcloud.devops.entity.Vpc;
+import com.chinamcloud.devops.mq.CMDBService;
 import com.chinamcloud.devops.service.db.ExecuteLogService;
 import com.chinamcloud.devops.utils.HttpClientUtils;
 import com.chinamcloud.devops.utils.Servlets;
@@ -43,8 +47,12 @@ public class ExecuteLogCotroller {
 	@Autowired
 	private ExecuteLogService service;
 
+	@Autowired
+	private CMDBService cmdbService;
+
 	@GetMapping("/form/")
-	String getForm() {
+	String getForm(Model model) {
+		model.addAttribute("tenants", cmdbService.getTenants(new HashMap<>()));
 		return "executeLog/form";
 	}
 
@@ -72,19 +80,23 @@ public class ExecuteLogCotroller {
 	}
 
 	@PostMapping("/form/")
-	String postForm(RedirectAttributes redirectAttributes, @RequestParam("accessKey") String accessKey,
-			@RequestParam("vpcCode") String vpcCode, @RequestParam("instanceCode") String instanceCode,
+	String postForm(RedirectAttributes redirectAttributes, @RequestParam("tenants") Integer tenantsId,
+			@RequestParam("vpc") Integer vpcId, @RequestParam("ecs") String ecsId,
 			@RequestParam("command") String command) {
 
-		redirectAttributes.addFlashAttribute("accessKey", accessKey);
-		redirectAttributes.addFlashAttribute("instanceCode", instanceCode);
-		redirectAttributes.addFlashAttribute("vpcCode", vpcCode);
+		redirectAttributes.addFlashAttribute("tenants", tenantsId);
+		redirectAttributes.addFlashAttribute("vpc", vpcId);
+		redirectAttributes.addFlashAttribute("ecs", ecsId);
 		redirectAttributes.addFlashAttribute("command", command);
 
+		Tenants tenants = cmdbService.findTenants(tenantsId);
+		Vpc vpc = cmdbService.findVpc(vpcId);
+		Ecs ecs = cmdbService.findEcs(Integer.valueOf(ecsId));
+
 		Map<String, String> params = new HashMap<>();
-		params.put("accessKey", accessKey);
-		params.put("vpc_code", vpcCode);
-		params.put("tgt", instanceCode);
+		params.put("accessKey", tenants.getAccessKey());
+		params.put("vpc_code", vpc.getCode());
+		params.put("tgt", ecs.getCode());
 		params.put("command", command);
 		params.put("is_async", "False");
 
@@ -94,10 +106,10 @@ public class ExecuteLogCotroller {
 
 		ExecuteLog executeLog = new ExecuteLog();
 		executeLog.setResult(result.getResp_info());
-		executeLog.setInstanceCode(instanceCode);
+		executeLog.setInstanceCode(ecs.getCode());
 		executeLog.setCreateTime(new Date());
 		executeLog.setCommand(command);
-		executeLog.setVpcCode(vpcCode);
+		executeLog.setVpcCode(vpc.getCode());
 
 		service.saveAndFlush(executeLog);
 

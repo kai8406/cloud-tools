@@ -27,10 +27,21 @@ public class MQTest {
 	protected AmqpService service;
 
 	@Test
+	public void findTenants() {
+
+		String receiveString = service.convertSendAndReceive("cmopCMDB.tenants.find", 2506);
+
+		Tenants entity = binder.fromJson(receiveString, Tenants.class);
+
+		System.out.println("=============返回的Tenants对象================");
+		System.out.println(entity);
+		System.out.println("over!");
+	}
+
+	@Test
 	public void findAllTenants() {
 
 		Map<String, Object> map = new HashMap<>();
-//		map.put("EQ_description", "Vpc-vZ6B8NqS");
 
 		String receiveString = service.convertSendAndReceive("cmopCMDB.tenants.findAll", map);
 
